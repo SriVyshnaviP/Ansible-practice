@@ -1,0 +1,109 @@
+index.html page-Testing handlers
+devops@ip-172-31-9-227:~$ vi index.html
+devops@ip-172-31-9-227:~$ cat index.html
+#<!DOCTYPE html>
+#<html>
+# <head>
+ #   <title>Nginx Test Page</title>
+  #  <style>
+   #     body {
+    #        background-color: #f5faff;
+    #        font-family: Verdana, sans-serif;
+    #        color: #0078D4;
+    #      text-align: center;
+    #       margin-top: 100px;
+    #    }
+    #   h1 {
+     #       font-size: 40px;
+     #   }
+     #   p {
+     #       font-size: 20px;
+      #  }
+   # </style>
+#</head>
+#<body>
+ #   <h1>Welcome!</h1>
+#   <p>Nginx successfully deployed using Ansible Roles  <strong>Version 1</strong>.</p>
+#</body>
+#</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nginx Test Page - Updated</title>
+    <style>
+        body {
+            background-color: #000000;
+            font-family: "Courier New", monospace;
+            color: #39FF14;
+            text-align: center;
+            margin-top: 100px;
+        }
+        h1 {
+            font-size: 45px;
+        }
+        p {
+            font-size: 22px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Update Confirmed!</h1>
+    <p>This is <strong>Version 2</strong>  Handler Successfully Triggered 🚀</p>
+</body>
+</html>
+-------------------------------------------------------------------------------------------------------------------------------------------
+devops@ip-172-31-9-227:~$ ls
+docker-image.yml  index.html  java-maven-improved.yml  java-maven.yml  nginx-role  role-playbook.yml  secrets.yml
+devops@ip-172-31-9-227:~$ cat role-playbook.yml
+---
+- name: Install and configure Nginx
+  hosts: ansiblegroup
+  become: yes
+
+  roles:
+    - nginx-role
+
+devops@ip-172-31-9-227:~$ cat nginx-role/tasks/main.yml
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for nginx-role
+#
+
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Ensure Nginx running
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Deploy custom index page
+  copy:
+    src: index.html
+    dest: /var/www/html/index.html
+  notify: restart nginx
+
+
+devops@ip-172-31-9-227:~$ cat nginx-role/handlers/main.yml
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for nginx-role
+#
+#
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+devops@ip-172-31-9-227:~$
+
+devops@ip-172-31-9-227:~/nginx-role$ ls
+README.md  defaults  files  handlers  meta  tasks  templates  tests  vars
+devops@ip-172-31-9-227:~/nginx-role$
