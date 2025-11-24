@@ -1,0 +1,78 @@
+vi java-maven-improved.yml
+devops@ip-172-31-9-227:~$ cat java-maven-improved.yml
+---
+- name: Setup Build Server with Java, Maven, and Git
+  hosts: all
+  become: yes
+
+  tasks:
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install required packages using loop
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - default-jdk
+        - maven
+        - git
+
+    - name: Verify installed packages
+      ansible.builtin.command: "{{ item }} --version"
+      loop:
+        - java
+        - mvn
+        - git
+      register: version_output
+      changed_when: false
+
+    - name: Show installed versions
+      ansible.builtin.debug:
+        msg: "{{ version_output.results | map(attribute='stdout_lines') | map('first') | list }}"
+
+    - name: Show installed versions
+      ansible.builtin.debug:
+        msg: "---------------All packages installed using Ansible-Playbook--------"
+
+        ____________________________________________________________________________________________________________________________
+        Results:
+        devops@ip-172-31-9-227:~$ ansible-playbook java-maven-improved.yml
+
+PLAY [Setup Build Server with Java, Maven, and Git] ********************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************
+[WARNING]: Host '172.31.1.88' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+ok: [172.31.1.88]
+
+TASK [Update apt cache] ************************************************************************************************************************************
+changed: [172.31.1.88]
+
+TASK [Install required packages using loop] ****************************************************************************************************************
+ok: [172.31.1.88] => (item=default-jdk)
+ok: [172.31.1.88] => (item=maven)
+ok: [172.31.1.88] => (item=git)
+
+TASK [Verify installed packages] ***************************************************************************************************************************
+ok: [172.31.1.88] => (item=java)
+ok: [172.31.1.88] => (item=mvn)
+ok: [172.31.1.88] => (item=git)
+
+TASK [Show installed versions] *****************************************************************************************************************************
+ok: [172.31.1.88] => {
+    "msg": [
+        "openjdk 21.0.8 2025-07-15",
+        "\u001b[1mApache Maven 3.8.7\u001b[m",
+        "git version 2.43.0"
+    ]
+}
+
+TASK [Show installed versions] *****************************************************************************************************************************
+ok: [172.31.1.88] => {
+    "msg": "---------------All packages installed using Ansible-Playbook--------"
+}
+
+PLAY RECAP *************************************************************************************************************************************************
+172.31.1.88                : ok=6    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
